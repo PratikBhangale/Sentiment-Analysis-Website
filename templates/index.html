@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentiment Analysis</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sentiment Analysis Tool</h1>
+      <p>Analyze the sentiment of text, tweets, or news articles</p>
+    </header>
+
+    <div id="error-message" class="error-message"></div>
+
+    <form action="{{ url_for('analyze') }}" method="POST" id="analysis-form">
+      <div class="form-group">
+        <label for="input_type">What would you like to analyze?</label>
+        <div class="radio-group">
+          <label class="radio-option">
+            <input type="radio" name="input_type" value="text" checked> Text Input
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="input_type" value="tweet"> Tweet
+          </label>
+          <label class="radio-option">
+            <input type="radio" name="input_type" value="news"> News Article
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group" id="text-input-group">
+        <label for="topic">Enter text to analyze:</label>
+        <textarea id="topic" name="topic" rows="4" required></textarea>
+      </div>
+
+      <div class="form-group" id="url-input-group" style="display: none;">
+        <label for="url">Enter URL:</label>
+        <input type="url" id="url" name="url" placeholder="https://twitter.com/username/status/123456789 or https://news-site.com/article">
+        <div id="tweet-note" style="display: none; margin-top: 10px; font-size: 14px; color: #666;">
+          <strong>Note:</strong> Due to Twitter's anti-scraping measures, direct tweet analysis may be limited. 
+          For best results with tweets, consider selecting "Text Input" and pasting the tweet content directly.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" id="submit-btn">Analyze Sentiment</button>
+      </div>
+    </form>
+
+    <div id="spinner-container" class="spinner-container">
+      <div class="spinner"></div>
+      <p>Analyzing sentiment...</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('analysis-form');
+      const textInputGroup = document.getElementById('text-input-group');
+      const urlInputGroup = document.getElementById('url-input-group');
+      const topicInput = document.getElementById('topic');
+      const urlInput = document.getElementById('url');
+      const spinnerContainer = document.getElementById('spinner-container');
+      const errorMessage = document.getElementById('error-message');
+      const inputTypeRadios = document.querySelectorAll('input[name="input_type"]');
+
+      const tweetNote = document.getElementById('tweet-note');
+
+      // Toggle input fields based on selected input type
+      inputTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          if (this.value === 'text') {
+            textInputGroup.style.display = 'block';
+            urlInputGroup.style.display = 'none';
+            topicInput.required = true;
+            urlInput.required = false;
+            tweetNote.style.display = 'none';
+          } else {
+            textInputGroup.style.display = 'none';
+            urlInputGroup.style.display = 'block';
+            topicInput.required = false;
+            urlInput.required = true;
+            
+            // Show tweet note only when tweet option is selected
+            tweetNote.style.display = this.value === 'tweet' ? 'block' : 'none';
+          }
+        });
+      });
+
+      // Form submission
+      form.addEventListener('submit', function(e) {
+        const selectedType = document.querySelector('input[name="input_type"]:checked').value;
+        
+        if (selectedType !== 'text' && !urlInput.value) {
+          e.preventDefault();
+          errorMessage.textContent = 'Please enter a valid URL';
+          errorMessage.style.display = 'block';
+          return;
+        }
+        
+        if (selectedType === 'text' && !topicInput.value.trim()) {
+          e.preventDefault();
+          errorMessage.textContent = 'Please enter some text to analyze';
+          errorMessage.style.display = 'block';
+          return;
+        }
+        
+        // Show loading spinner
+        spinnerContainer.style.display = 'block';
+        errorMessage.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentiment Analysis Results</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Chart.js will be added in a future update -->
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Sentiment Analysis Results</h1>
+      {% if results.source_type %}
+        <p>Analysis of {{ results.source_type }}</p>
+      {% endif %}
+    </header>
+
+    {% if results %}
+      <div class="sentiment-card sentiment-{{ results.overall_sentiment }}">
+        <h2>Overall Sentiment: {{ results.overall_sentiment|title }}</h2>
+        
+        <div class="sentiment-stats">
+          <div class="stat-item">
+            <div class="stat-value">{{ "%.2f"|format(results.polarity) }}</div>
+            <div class="stat-label">Polarity</div>
+            <div class="stat-desc">(-1.0 negative to 1.0 positive)</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-value">{{ "%.2f"|format(results.subjectivity) }}</div>
+            <div class="stat-label">Subjectivity</div>
+            <div class="stat-desc">(0.0 objective to 1.0 subjective)</div>
+          </div>
+        </div>
+
+        <!-- Chart will be added in a future update -->
+        
+        <div class="results-container">
+          <h3>Analyzed Content</h3>
+          {% if results.source_url %}
+            <div class="source-info">
+              <strong>Source:</strong> <a href="{{ results.source_url }}" target="_blank">{{ results.source_url }}</a>
+            </div>
+          {% endif %}
+          
+          {% if results.excerpts %}
+            {% for excerpt in results.excerpts %}
+              <div class="excerpt-container">
+                <p class="excerpt-text">{{ excerpt }}</p>
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="error-message" style="display: block;">
+        <p>No results available. There might have been an error during analysis.</p>
+      </div>
+    {% endif %}
+    
+    <a href="{{ url_for('home') }}" class="back-link">← Analyze Another</a>
+  </div>
+
+  <!-- Chart functionality will be added in a future update -->
+</body>
+</html>
